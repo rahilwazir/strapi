@@ -27,6 +27,7 @@
     "jsonwebtoken": "^8.1.0",
     "koa": "^2.1.0",
     "koa2-ratelimit": "^0.6.1",
+    "passport-saml": "^0.35.0",
     "purest": "^2.0.1",
     "request": "^2.83.0",
     "uuid": "^3.1.0"
