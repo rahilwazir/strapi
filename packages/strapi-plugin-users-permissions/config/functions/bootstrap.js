@@ -39,6 +39,14 @@ module.exports = async cb => {
       enabled: true,
       icon: 'envelope'
     },
+    'oktaSAML': {
+      enabled: false,
+      icon: 'code',
+      key: '',
+      secret: '',
+      cert: null,
+      callback: '/auth/oktaSAML/callback'
+    },
     discord: {
       enabled: false,
       icon: 'comments',

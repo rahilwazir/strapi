@@ -6,11 +6,14 @@
 
 // Public node modules.
 const _ = require('lodash');
+const passport = require('koa-passport');
 
 module.exports = strapi => {
   return {
     beforeInitialize: function() {
       strapi.config.middleware.load.before.unshift('users-permissions');
+      strapi.app.use(passport.initialize())
+      strapi.app.use(passport.session())
     },
 
     initialize: function(cb) {

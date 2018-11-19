@@ -147,7 +147,15 @@
         "policies": []
       }
     },
-
+    {
+      "method": "GET",
+      "path": "/connect/oktaSAML",
+      "handler": "Auth.samlConnect",
+      "config": {
+        "policies": ["plugins.users-permissions.ratelimit"],
+        "prefix": ""
+      }
+    },
     {
       "method": "GET",
       "path": "/connect/*",

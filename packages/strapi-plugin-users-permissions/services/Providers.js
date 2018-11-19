@@ -109,6 +109,11 @@ const getProfile = async (provider, query, callback) => {
   }).get();
 
   switch (provider) {
+    case 'oktaSAML': {
+      const saml = require('./Saml');
+      saml.strategy();
+      break;
+    }
     case 'discord': {
       const discord = new Purest({
         provider: 'discord',

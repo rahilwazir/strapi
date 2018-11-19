@@ -167,6 +167,38 @@ module.exports = {
     return strapi.koaMiddlewares.compose(grant.middleware)(ctx, next);
   },
 
+  samlConnect: async (ctx) => {
+    const grantConfig = await strapi.store({
+      environment: '',
+      type: 'plugin',
+      name: 'users-permissions',
+      key: 'grant'
+    }).get();
+
+    _.defaultsDeep(grantConfig, {
+      server: {
+        protocol: 'http',
+        host: `${strapi.config.currentEnvironment.server.host}:${strapi.config.currentEnvironment.server.port}`
+      }
+    });
+
+    const provider = process.platform === 'win32' ? ctx.request.url.split('\\')[2] : ctx.request.url.split('/')[2];
+    const config = grantConfig[provider];
+
+    if (!_.get(config, 'enabled')) {
+      return ctx.badRequest(null, 'This provider is disabled.');
+    }
+
+    const saml = require('../services/Saml');
+    saml.auth({
+      path: '/connect/oktaSAML/callback',
+      entryPoint: 'https://dev-705289.oktapreview.com/app/qfnetworkdev705289_strapisaml_1/exkhgb4jmjOsscznJ0h7/sso/saml',
+      issuer: 'http://www.okta.com/exkhgb4jmjOsscznJ0h7',
+      cert: null
+    });
+    saml.strategy();
+  },
+
   forgotPassword: async (ctx) => {
     const { email, url } = ctx.request.body;
 

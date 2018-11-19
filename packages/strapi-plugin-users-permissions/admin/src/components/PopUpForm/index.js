@@ -43,6 +43,8 @@ class PopUpForm extends React.Component { // eslint-disable-line react/prefer-st
 
   getRedirectURIProviderConf = () => { // NOTE: Still testings providers so the switch statement is likely to change
     switch (this.props.dataToEdit) {
+      case 'oktaSAML':
+        return `${strapi.backendURL}/connect/oktaSAML/callback`;
       case 'discord':
         return `${strapi.backendURL}/connect/discord/callback`;
       case 'facebook':
