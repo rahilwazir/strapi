@@ -10,7 +10,9 @@ const passport = require('koa-passport');
 const SamlStrategy = require('passport-saml').Strategy;
 
 module.exports = {
-  auth: (config) => {
+  auth: () => passport.authenticate('saml'),
+  strategy: (config) => {
+    passport.authenticate('saml');
     passport.serializeUser(function (user, done) {
       done(null, user);
     });
@@ -26,8 +28,5 @@ module.exports = {
         email: profile.Email
       });
     }));
-  },
-  strategy: () => {
-    passport.authenticate('saml');   
   }
 };

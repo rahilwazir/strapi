@@ -10,6 +10,9 @@
 const crypto = require('crypto');
 const _ = require('lodash');
 const emailRegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const passport = require('koa-passport');
+strapi.app.use(passport.initialize());
+strapi.app.use(passport.session());
 
 module.exports = {
   callback: async (ctx) => {
@@ -161,42 +164,23 @@ module.exports = {
       return ctx.badRequest(null, 'This provider is disabled.');
     }
 
-    const Grant = require('grant-koa');
-    const grant = new Grant(grantConfig);
-
-    return strapi.koaMiddlewares.compose(grant.middleware)(ctx, next);
-  },
-
-  samlConnect: async (ctx) => {
-    const grantConfig = await strapi.store({
-      environment: '',
-      type: 'plugin',
-      name: 'users-permissions',
-      key: 'grant'
-    }).get();
-
-    _.defaultsDeep(grantConfig, {
-      server: {
-        protocol: 'http',
-        host: `${strapi.config.currentEnvironment.server.host}:${strapi.config.currentEnvironment.server.port}`
-      }
-    });
-
-    const provider = process.platform === 'win32' ? ctx.request.url.split('\\')[2] : ctx.request.url.split('/')[2];
-    const config = grantConfig[provider];
-
-    if (!_.get(config, 'enabled')) {
-      return ctx.badRequest(null, 'This provider is disabled.');
+    if (provider === 'oktaSAML') {
+      const saml = require('../services/Saml');
+      saml.auth({
+        path: '/connect/oktaSAML/callback',
+        entryPoint: 'https://dev-705289.oktapreview.com/app/qfnetworkdev705289_strapisaml_1/exkhgb4jmjOsscznJ0h7/sso/saml',
+        issuer: 'http://www.okta.com/exkhgb4jmjOsscznJ0h7',
+        cert: null
+      });
+      //return strapi.koaMiddlewares.compose([saml.strategy])(ctx, next);
+      //middleware = [saml.strategy];
+      //return saml.strategy()(ctx, next);
+      return ctx.redirect('https://dev-705289.oktapreview.com/app/qfnetworkdev705289_strapisaml_1/exkhgb4jmjOsscznJ0h7/sso/saml');
     }
 
-    const saml = require('../services/Saml');
-    saml.auth({
-      path: '/connect/oktaSAML/callback',
-      entryPoint: 'https://dev-705289.oktapreview.com/app/qfnetworkdev705289_strapisaml_1/exkhgb4jmjOsscznJ0h7/sso/saml',
-      issuer: 'http://www.okta.com/exkhgb4jmjOsscznJ0h7',
-      cert: null
-    });
-    saml.strategy();
+    const Grant = require('grant-koa');
+    const grant = new Grant(grantConfig);
+    return strapi.koaMiddlewares.compose(grant.middleware)(ctx, next);
   },
 
   forgotPassword: async (ctx) => {
